@@ -38,24 +38,10 @@ namespace ls
 			ps -> executeUpdate();
 		}
 
-		vector<vector<string>> Command::Query()
+		void Command::Query(Table *table)
 		{
 			rs = ps -> executeQuery();
-			return ParseResultSetToTable();
-		}
-	
-		vector<vector<string>> Command::ParseResultSetToTable()
-		{
-			vector<vector<string>> table;
-			int n = ps -> getMetaData() -> getColumnCount();
-			while(rs -> next())
-			{
-				vector<string> row;
-				for(int i=1;i<=n;++i)
-					row.push_back(rs -> getString(i));
-				table.push_back(std::move(row));
-			}
-			return table;
+			table -> ParseFrom(rs);
 		}
 	}
 }

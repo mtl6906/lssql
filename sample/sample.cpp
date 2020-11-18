@@ -8,13 +8,49 @@
 using namespace std;
 using namespace ls::sql;
 
-void PrintContent(vector<vector<string>> &table)
+class User
+{
+	public:
+		string username;
+		string password;
+		string email;
+};
+
+class UserTable : public ls::sql::Table
+{
+	public:
+		UserTable()
+		{
+			
+		}
+		void ParseFrom(::sql::ResultSet *rs) override
+		{
+			while(rs -> next())
+			{
+				User *user = new User();
+				user -> username = rs -> getString("username");
+				user -> password = rs -> getString("password");
+				user -> email = rs -> getString("email");
+				data.push_back(user);
+			}
+		}
+		vector<User *> &GetData()
+		{
+			return data;
+		}
+	private:
+		vector<User *> data;
+};
+
+void PrintContent(UserTable &userTable)
 {
 	cout << "username\tpassword\temail" << endl;
-	for(auto &row : table)
+	auto &data = userTable.GetData();
+	for(auto user : data)
 	{
-		for(auto &col : row)
-			cout << col << "\t";
+		cout << user -> username << "\t";
+		cout << user -> password << "\t";
+		cout << user -> email << "\t";
 		cout << endl;
 	}
 }
@@ -45,7 +81,7 @@ int main()
 			cout << "input username, password, email:" << endl;
 			cin >> username >> password >> email;
 			unique_ptr<Command> command(CommandFactory::GetInstance() -> GetCommand(insertUser, {
-				new String(username), 
+				new String(username),
 				new String(password), 
 				new String(email)
 			}));
@@ -54,8 +90,9 @@ int main()
 		else if(number == 3)
 		{
 			unique_ptr<Command> command(CommandFactory::GetInstance() -> GetCommand(selectUser, {}));
-			auto table = command -> Query();
-			PrintContent(table);
+			UserTable userTable;
+			command -> Query(&userTable);
+			PrintContent(userTable);
 		}
 		else if(number == 4)
 		{
