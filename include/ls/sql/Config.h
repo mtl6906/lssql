@@ -7,15 +7,17 @@ namespace ls
 {
     namespace sql
     {
-        class SqlConfig : public ls::Config
+        class Config : public ls::Config
         {
             public:  
+		Config();
+		std::string getConfigPath() override;
+		void init() override;
                 std::string url;
                 std::string username;
                 std::string password;
                 int size;
-                SqlConfig();
-        };
+	};
     }
 }
 

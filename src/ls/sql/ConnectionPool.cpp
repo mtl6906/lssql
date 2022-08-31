@@ -6,7 +6,7 @@ namespace ls
 {
 	namespace sql
 	{
-		ConnectionPool::ConnectionPool() : driver(::sql::mysql::get_mysql_driver_instance())
+		ConnectionPool::ConnectionPool() : driver(get_driver_instance())
 		{
 			for(int i=0;i<config.size;++i)
 			{
@@ -24,13 +24,13 @@ namespace ls
 			}
 		}
 
-		int ConnectionPool::Put(::sql::Connection *connection)
+		void ConnectionPool::put(::sql::Connection *connection)
 		{
 			lock_guard<mutex> poolLock(poolMutex);
 			pool.push(connection);
 		}
 
-		::sql::Connection *ConnectionPool::Get()
+		::sql::Connection *ConnectionPool::get()
 		{
 			lock_guard<mutex> poolLock(poolMutex);
 			auto it = pool.front();

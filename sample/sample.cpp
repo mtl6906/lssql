@@ -1,8 +1,9 @@
 #include "iostream"
 #include "memory"
-#include "ls/sql/CommandFactory.h"
+#include "ls/sql/API.h"
 #include "ls/sql/String.h"
 #include "ls/sql/Int.h"
+#include "ls/sql/API.h"
 
 
 using namespace std;
@@ -23,7 +24,7 @@ class UserTable : public ls::sql::Table
 		{
 			
 		}
-		void ParseFrom(::sql::ResultSet *rs) override
+		void parseFrom(::sql::ResultSet *rs) override
 		{
 			while(rs -> next())
 			{
@@ -34,7 +35,7 @@ class UserTable : public ls::sql::Table
 				data.push_back(user);
 			}
 		}
-		vector<User *> &GetData()
+		vector<User *> &getData()
 		{
 			return data;
 		}
@@ -45,7 +46,7 @@ class UserTable : public ls::sql::Table
 void PrintContent(UserTable &userTable)
 {
 	cout << "username\tpassword\temail" << endl;
-	auto &data = userTable.GetData();
+	auto &data = userTable.getData();
 	for(auto user : data)
 	{
 		cout << user -> username << "\t";
@@ -58,10 +59,11 @@ void PrintContent(UserTable &userTable)
 int main()
 {	
 	int number;
-	const string createUser = "create table user(username varchar(255) not null, password varchar(255) not null, emall varchar(255) not null, primary key(username));";
+	const string createUser = "create table user(username varchar(255) not null, password varchar(255) not null, email varchar(255) not null, primary key(username));";
 	const string insertUser = "insert into user(username, password, email) values(?, ?, ?);";
 	const string selectUser = "select username, password, email from user;";
 	const string deleteUser = "delete from user where username = ?;";
+	
 	for(;;)
 	{
 		cout << "1. createUser" << endl;
@@ -72,26 +74,23 @@ int main()
 		cin >> number;
 		if(number == 1)
 		{
-			unique_ptr<Command> command(CommandFactory::GetInstance() -> GetCommand(createUser, {}));
-			command -> Update();
+			api.update(createUser, {});
 		}
 		else if(number == 2)
 		{
 			string username, password, email;
 			cout << "input username, password, email:" << endl;
 			cin >> username >> password >> email;
-			unique_ptr<Command> command(CommandFactory::GetInstance() -> GetCommand(insertUser, {
+			api.update(insertUser, {
 				new String(username),
 				new String(password), 
 				new String(email)
-			}));
-			command -> Update();
+			});
 		}
 		else if(number == 3)
 		{
-			unique_ptr<Command> command(CommandFactory::GetInstance() -> GetCommand(selectUser, {}));
 			UserTable userTable;
-			command -> Query(&userTable);
+			api.query(selectUser, {}, &userTable);
 			PrintContent(userTable);
 		}
 		else if(number == 4)
@@ -99,8 +98,7 @@ int main()
 			string username;
 			cout << "input username:" << endl;
 			cin >> username;
-			unique_ptr<Command> command(CommandFactory::GetInstance() -> GetCommand(deleteUser, {new String(username)}));
-			command -> Update();
+			api.update(deleteUser, {new String(username)});
 		}
 		else if(number == 5)
 			break;

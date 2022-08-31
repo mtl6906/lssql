@@ -2,7 +2,7 @@
 #define LS_SQL_COMMAND_H
 
 #include "ls/sql/ConnectionPool.h"
-#include "ls/sql/Parameter.h"
+#include "ls/sql/Item.h"
 #include "ls/sql/Table.h"
 #include "memory"
 
@@ -15,14 +15,14 @@ namespace ls
 			public:
 				Command(ConnectionPool &pool, 
 					const std::string &sql, 
-					std::vector<Parameter *> parameters);
+					std::vector<Item *> &parameters);
 				~Command();
-				void Update();
-				void Query(Table *table);
+				void update();
+				void query(Table *table);
 			protected:
-				void SetParameters();
+				void setParameters(std::vector<Item *> &paramters);
 				ConnectionPool &pool;
-				std::vector<std::unique_ptr<Parameter>> parameters;
+				std::vector<Item *> parameters;
 				::sql::Connection *connection;
 				::sql::PreparedStatement *ps;
 				::sql::ResultSet *rs;

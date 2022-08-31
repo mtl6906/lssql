@@ -1,4 +1,6 @@
 #include "ls/sql/Command.h"
+#include "mysql/jdbc.h"
+#include "ls/DefaultLogger.h"
 
 using namespace std;
 
@@ -8,20 +10,21 @@ namespace ls
 	{
 		Command::Command(ConnectionPool &pool, 
 				const std::string &sql, 
-				vector<Parameter *> parameters) : 
+				vector<Item *> &parameters) : 
 					pool(pool),
-					parameters(parameters.begin(), parameters.end()),
-					connection(pool.Get()), 
+					connection(pool.get()),
 					ps(connection -> prepareStatement(sql)),
 					rs(nullptr)
 		{
-			SetParameters();
+			setParameters(parameters);
 		}
 			
-		void Command::SetParameters()
+		void Command::setParameters(vector<Item *> &parameters)
 		{
 			for(int i=0;i<parameters.size();++i)
-				parameters[i] -> AddTo(ps, i+1);
+				parameters[i] -> addTo(ps, i+1);
+			for(auto &it : parameters)
+				delete it;
 		}
 
 		Command::~Command()
@@ -31,17 +34,17 @@ namespace ls
 			if(ps)
 				ps -> close();
 			if(connection)
-				pool.Put(connection);
+				pool.put(connection);
 		}
-		void Command::Update()
+		void Command::update()
 		{
 			ps -> executeUpdate();
 		}
 
-		void Command::Query(Table *table)
+		void Command::query(Table *table)
 		{
 			rs = ps -> executeQuery();
-			table -> ParseFrom(rs);
+			table -> parseFrom(rs);
 		}
 	}
 }

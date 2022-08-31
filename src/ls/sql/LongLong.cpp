@@ -9,7 +9,7 @@ namespace ls
 			
 		}
 
-		void LongLong::AddTo(::sql::PreparedStatement *ps, int pos)
+		void LongLong::addTo(::sql::PreparedStatement *ps, int pos)
 		{
 			ps -> setInt64(pos, value);
 		}

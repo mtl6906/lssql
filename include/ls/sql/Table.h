@@ -10,7 +10,7 @@ namespace ls
 		class Table
 		{
 			public:
-				virtual void ParseFrom(::sql::ResultSet *rs) = 0;
+				virtual void parseFrom(::sql::ResultSet *rs) = 0;
 				virtual ~Table() = default;
 		};
 	}

@@ -9,7 +9,7 @@ namespace ls
 		
 		}
 
-		void Int::AddTo(::sql::PreparedStatement *ps, int pos)
+		void Int::addTo(::sql::PreparedStatement *ps, int pos)
 		{
 			ps -> setInt(pos, value);
 		}
